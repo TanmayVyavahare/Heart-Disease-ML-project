@@ -2,13 +2,6 @@
 
 > **End-to-End Machine Learning Pipeline for Cardiovascular Risk Prediction**
 
-![Python](https://img.shields.io/badge/Python-3.12+-3776AB?style=for-the-badge&logo=python&logoColor=white)
-![Scikit-Learn](https://img.shields.io/badge/Scikit--Learn-1.4+-F7931E?style=for-the-badge&logo=scikit-learn&logoColor=white)
-![Flask](https://img.shields.io/badge/Flask-3.0+-000000?style=for-the-badge&logo=flask&logoColor=white)
-![SHAP](https://img.shields.io/badge/SHAP-Explainable_AI-FF6F61?style=for-the-badge)
-![DVC](https://img.shields.io/badge/DVC-Data_Versioning-945DD6?style=for-the-badge&logo=dvc&logoColor=white)
-![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=for-the-badge&logo=docker&logoColor=white)
-
 ---
 
 ## 📌 Executive Summary
@@ -232,24 +225,5 @@ Access the containerized application at `http://localhost:5000`.
 
 ---
 
-## 💬 ML Interview Discussion Points
-
-When explaining this project in a machine learning or data science interview, emphasize:
-
-1. **Medical False Negatives vs. False Positives**:
-   - In medical diagnosis, **Recall is prioritized over precision** to minimize missed high-risk patients (False Negatives).
-   - Random Forest achieved an **ROC-AUC of 0.9334** with **87.5% Recall**.
-
-2. **Modular Architecture & Software Engineering Practices**:
-   - Implemented separate components (`ingestion`, `validation`, `transformation`, `training`) with standardized error handling and logging.
-   - Comprehensive unit testing suite using `pytest` covering validation, transformation integrity, and API endpoints.
-
-3. **Interpretability & Compliance**:
-   - Medical models cannot be black boxes. Used **SHAP tree explainers** to extract exact feature contributions for both global feature importance and individual predictions.
 
 ---
-
-## 📄 License & Acknowledgments
-
-- **Dataset**: UCI Machine Learning Repository — Cleveland Heart Disease Dataset.
-- **License**: MIT License. free for educational and non-commercial use.
