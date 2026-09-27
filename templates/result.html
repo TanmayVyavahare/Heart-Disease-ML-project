@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HeartGuard - Prediction Result</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header animate-in" id="result-header">
+            <span class="header__icon" role="img" aria-label="heart">&#10084;&#65039;</span>
+            <h1 class="header__title">HeartGuard</h1>
+            <p class="header__subtitle">Prediction Result</p>
+        </header>
+
+        <!-- Result Card -->
+        <div class="card result-card animate-in-delay" id="result-card">
+            {% if result.prediction == 1 %}
+            <span class="result__badge result__badge--risk" id="result-badge">
+                &#9888; Higher Predicted Risk
+            </span>
+            {% else %}
+            <span class="result__badge result__badge--safe" id="result-badge">
+                &#10003; Lower Predicted Risk
+            </span>
+            {% endif %}
+
+            <p class="result__label">Estimated Probability</p>
+
+            <!-- Probability Ring -->
+            <div class="progress-ring" id="progress-ring">
+                <svg width="160" height="160" viewBox="0 0 160 160">
+                    <circle class="progress-ring__circle-bg" cx="80" cy="80" r="68"></circle>
+                    <circle
+                        class="progress-ring__circle"
+                        cx="80" cy="80" r="68"
+                        stroke="{{ '#ef4444' if result.prediction == 1 else '#22c55e' }}"
+                        stroke-dasharray="427.26"
+                        stroke-dashoffset="{{ 427.26 - (427.26 * result.probability) }}"
+                    ></circle>
+                </svg>
+                <span class="progress-ring__text {{ 'result__probability--risk' if result.prediction == 1 else 'result__probability--safe' }}">
+                    {{ result.probability_percent }}%
+                </span>
+            </div>
+
+            <p class="result__message" id="result-message">
+                {{ result.message }}
+            </p>
+
+            {% if result.top_features %}
+            <div class="features-section" id="features-section">
+                <p class="features-section__title">Top Influential Features</p>
+                <div class="feature-list">
+                    {% for feature in result.top_features %}
+                    <span class="feature-tag">{{ feature }}</span>
+                    {% endfor %}
+                </div>
+                <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.75rem;">
+                    Feature importance does not prove causation.
+                </p>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Disclaimer -->
+        <div class="disclaimer animate-in-delay" id="disclaimer">
+            <span class="disclaimer__icon">&#9888;&#65039;</span>
+            <strong>Disclaimer:</strong>
+            This application is an educational machine learning demonstration.
+            It is not a medical diagnostic tool and should not be used to make healthcare decisions.
+            Always consult a qualified healthcare professional for medical advice.
+        </div>
+
+        <!-- Actions -->
+        <div style="text-align: center; margin-top: 1.5rem;" class="animate-in-delay">
+            <a href="/" class="btn btn--secondary" id="back-btn">
+                &#8592; Make Another Prediction
+            </a>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>HeartGuard &mdash; End-to-End ML Pipeline for Cardiovascular Risk Prediction</p>
+        </footer>
+    </div>
+</body>
+</html>

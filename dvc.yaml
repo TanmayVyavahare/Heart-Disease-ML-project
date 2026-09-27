@@ -1,0 +1,21 @@
+stages:
+  train:
+    cmd: python -m src.heartguard.pipeline.training_pipeline
+    deps:
+      - data/raw/heart.csv
+      - src/heartguard/components/data_ingestion.py
+      - src/heartguard/components/data_validation.py
+      - src/heartguard/components/data_transformation.py
+      - src/heartguard/components/model_trainer.py
+      - src/heartguard/components/model_evaluation.py
+      - src/heartguard/components/model_explanation.py
+      - src/heartguard/pipeline/training_pipeline.py
+    outs:
+      - artifacts/models/model.pkl
+      - artifacts/preprocessing/preprocessor.pkl
+      - artifacts/models/metrics.json
+    plots:
+      - artifacts/plots/confusion_matrix.png
+      - artifacts/plots/roc_curve.png
+      - artifacts/plots/precision_recall_curve.png
+      - artifacts/plots/feature_importance.png

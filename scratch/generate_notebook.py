@@ -1,0 +1,239 @@
+import json
+import os
+
+notebook = {
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# 🫀 HeartGuard: Exploratory Data Analysis (EDA)\n",
+    "### End-to-End Cardiovascular Risk Prediction Pipeline\n",
+    "\n",
+    "**Objective**: Perform comprehensive Exploratory Data Analysis on the Cleveland Heart Disease Dataset to identify key clinical risk factors, evaluate feature distributions, detect anomalies/outliers, analyze feature correlations, and formulate data transformation & feature engineering strategies."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "--- \n",
+    "## 1. Setup & Environment Initialisation"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": None,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import os\n",
+    "import pandas as pd\n",
+    "import numpy as np\n",
+    "import matplotlib.pyplot as plt\n",
+    "import seaborn as sns\n",
+    "\n",
+    "# Setting plotting aesthetic\n",
+    "sns.set_theme(style=\"whitegrid\", palette=\"muted\")\n",
+    "plt.rcParams[\"figure.figsize\"] = (10, 6)\n",
+    "plt.rcParams[\"font.size\"] = 12\n",
+    "\n",
+    "# Ensure path to data\n",
+    "data_path = \"../data/raw/heart.csv\"\n",
+    "if not os.path.exists(data_path):\n",
+    "    data_path = \"data/raw/heart.csv\"\n",
+    "\n",
+    "df = pd.read_csv(data_path)\n",
+    "print(f\"Dataset Shape: {df.shape[0]} rows, {df.shape[1]} columns\")\n",
+    "df.head()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "--- \n",
+    "## 2. Dataset Overview & Data Quality Checks"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": None,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Information on data types and null values\n",
+    "print(\"=== DATASET INFO ===\")\n",
+    "df.info()\n",
+    "\n",
+    "print(\"\\n=== MISSING VALUES ===\")\n",
+    "print(df.isnull().sum())\n",
+    "\n",
+    "print(\"\\n=== DUPLICATE ROWS ===\")\n",
+    "print(f\"Duplicates count: {df.duplicated().sum()}\")\n",
+    "\n",
+    "print(\"\\n=== SUMMARY STATISTICS ===\")\n",
+    "df.describe().T"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "--- \n",
+    "## 3. Target Variable Analysis (`target`)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": None,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "fig, ax = plt.subplots(1, 2, figsize=(14, 5))\n",
+    "\n",
+    "# Frequency plot\n",
+    "sns.countplot(data=df, x='target', palette=['#10B981', '#EF4444'], ax=ax[0])\n",
+    "ax[0].set_title(\"Heart Disease Class Distribution\")\n",
+    "ax[0].set_xticklabels([\"0: Low Risk (Normal)\", \"1: High Risk (Disease)\"])\n",
+    "ax[0].set_ylabel(\"Patient Count\")\n",
+    "\n",
+    "# Percentage pie chart\n",
+    "target_counts = df['target'].value_counts()\n",
+    "ax[1].pie(target_counts, labels=[\"High Risk (1)\", \"Low Risk (0)\"], autopct='%1.1f%%', \n",
+    "        colors=['#EF4444', '#10B981'], startangle=140, explode=(0.05, 0))\n",
+    "ax[1].set_title(\"Percentage Breakdown\")\n",
+    "\n",
+    "plt.tight_layout()\n",
+    "plt.show()\n",
+    "\n",
+    "print(f\"Class proportions:\\n{df['target'].value_counts(normalize=True)*100}\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "**Key Finding**: The dataset is well-balanced (~54% High Risk vs ~46% Low Risk), requiring no aggressive resampling like SMOTE."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "--- \n",
+    "## 4. Continuous Features Analysis & Outlier Detection"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": None,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "num_cols = ['age', 'trestbps', 'chol', 'thalach', 'oldpeak']\n",
+    "\n",
+    "fig, axes = plt.subplots(len(num_cols), 2, figsize=(15, 18))\n",
+    "\n",
+    "for i, col in enumerate(num_cols):\n",
+    "    # Distribution plot\n",
+    "    sns.histplot(df, x=col, hue='target', kde=True, element='step', \n",
+    "                 palette=['#10B981', '#EF4444'], ax=axes[i, 0])\n",
+    "    axes[i, 0].set_title(f'Distribution of {col} by Target')\n",
+    "    \n",
+    "    # Boxplot for outliers\n",
+    "    sns.boxplot(df, x='target', y=col, palette=['#10B981', '#EF4444'], ax=axes[i, 1])\n",
+    "    axes[i, 1].set_title(f'Outliers & Quartiles of {col}')\n",
+    "    axes[i, 1].set_xticklabels([\"Low Risk\", \"High Risk\"])\n",
+    "\n",
+    "plt.tight_layout()\n",
+    "plt.show()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "--- \n",
+    "## 5. Categorical Feature Relationships with Heart Disease"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": None,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "cat_cols = ['sex', 'cp', 'fbs', 'restecg', 'exang', 'slope', 'ca', 'thal']\n",
+    "fig, axes = plt.subplots(4, 2, figsize=(16, 18))\n",
+    "axes = axes.flatten()\n",
+    "\n",
+    "for i, col in enumerate(cat_cols):\n",
+    "    sns.countplot(data=df, x=col, hue='target', palette=['#10B981', '#EF4444'], ax=axes[i])\n",
+    "    axes[i].set_title(f'{col.upper()} vs Heart Disease Risk')\n",
+    "    axes[i].set_xlabel(col)\n",
+    "    axes[i].set_ylabel(\"Count\")\n",
+    "    axes[i].legend([\"Low Risk\", \"High Risk\"], loc='upper right')\n",
+    "\n",
+    "plt.tight_layout()\n",
+    "plt.show()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "--- \n",
+    "## 6. Correlation Matrix & Feature Relationships"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": None,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "plt.figure(figsize=(14, 10))\n",
+    "corr = df.corr()\n",
+    "mask = np.triu(np.ones_like(corr, dtype=bool))\n",
+    "\n",
+    "sns.heatmap(corr, mask=mask, annot=True, fmt=\".2f\", cmap=\"coolwarm\", \n",
+    "            vmin=-1, vmax=1, linewidths=0.5, cbar_kws={\"shrink\": .8})\n",
+    "plt.title(\"Correlation Matrix of Clinical Features\", fontsize=16)\n",
+    "plt.show()\n",
+    "\n",
+    "print(\"Top correlations with Target:\")\n",
+    "print(corr['target'].sort_values(ascending=False))"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "--- \n",
+    "## 7. Key Findings & Engineering Recommendations\n",
+    "\n",
+    "1. **Chest Pain (`cp`) & Max Heart Rate (`thalach`)**: Strongly positively correlated with heart disease. Non-anginal and atypical chest pain patients present significantly higher risk than asymptomatic ones.\n",
+    "2. **Exercise-Induced Angina (`exang`), ST Depression (`oldpeak`), & Vessels (`ca`)**: Strongly negatively correlated. Higher ST depression and higher number of colored major vessels strongly indicate severe ischemic disease.\n",
+    "3. **Domain Interaction Features Introduced**:\n",
+    "   - **`age_thalach_ratio`**: Captures heart rate capacity relative to age (`thalach / age`).\n",
+    "   - **`bp_chol_prod`**: Cardiovascular load interaction (`trestbps * chol`).\n",
+    "   - **`st_slope_risk`**: Combined ischemic stress marker (`oldpeak * slope`).\n",
+    "   - **`risk_score_sum`**: High-risk categorical indicator accumulator (`(cp > 0) + exang + (ca > 0)`)."
+   ]
+  }
+ ],
+ "metadata": {
+  "language_info": {
+   "name": "python"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 2
+}
+
+os.makedirs("c:/Users/ACER/Desktop/Heart Disease ML project/notebooks", exist_ok=True)
+with open("c:/Users/ACER/Desktop/Heart Disease ML project/notebooks/01_eda.ipynb", "w", encoding="utf-8") as f:
+    json.dump(notebook, f, indent=2)
+
+print("Notebook 01_eda.ipynb generated successfully!")

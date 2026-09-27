@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="HeartGuard - An educational ML tool for heart disease risk prediction using clinical features. Not for medical use.">
+    <title>HeartGuard - Heart Disease Risk Prediction</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header animate-in" id="page-header">
+            <span class="header__icon" role="img" aria-label="heart">&#10084;&#65039;</span>
+            <h1 class="header__title">HeartGuard</h1>
+            <p class="header__subtitle">
+                Explainable Heart Disease Risk Prediction powered by Machine Learning
+            </p>
+        </header>
+
+        <!-- Prediction Form -->
+        <form action="/predict" method="POST" class="card animate-in-delay" id="prediction-form">
+            <h2 class="card__title">
+                <span class="card__title-icon">&#128202;</span>
+                Enter Clinical Parameters
+            </h2>
+
+            <div class="form-grid">
+                {% for feature in features %}
+                <div class="form-group">
+                    <label for="{{ feature.name }}">{{ feature.label }}</label>
+
+                    {% if feature.type == 'select' %}
+                    <select name="{{ feature.name }}" id="{{ feature.name }}" required>
+                        <option value="" disabled selected>Select...</option>
+                        {% for value, label in feature.options %}
+                        <option value="{{ value }}">{{ label }}</option>
+                        {% endfor %}
+                    </select>
+
+                    {% elif feature.type == 'number' %}
+                    <input
+                        type="number"
+                        name="{{ feature.name }}"
+                        id="{{ feature.name }}"
+                        min="{{ feature.min }}"
+                        max="{{ feature.max }}"
+                        step="{{ feature.step }}"
+                        placeholder="{{ feature.placeholder }}"
+                        required
+                    >
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+
+            <button type="submit" class="btn btn--primary" id="predict-btn">
+                &#9889; Predict Risk
+            </button>
+        </form>
+
+        <!-- Disclaimer -->
+        <div class="disclaimer animate-in-delay" id="disclaimer">
+            <span class="disclaimer__icon">&#9888;&#65039;</span>
+            <strong>Disclaimer:</strong>
+            This application is an educational machine learning demonstration.
+            It is not a medical diagnostic tool and should not be used to make healthcare decisions.
+            Always consult a qualified healthcare professional for medical advice.
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>HeartGuard &mdash; End-to-End ML Pipeline for Cardiovascular Risk Prediction</p>
+            <p>Built with scikit-learn &amp; Flask</p>
+        </footer>
+    </div>
+
+    <script>
+        // Simple loading state on form submit
+        document.getElementById('prediction-form').addEventListener('submit', function() {
+            const btn = document.getElementById('predict-btn');
+            btn.classList.add('btn--loading');
+            btn.textContent = 'Analyzing...';
+        });
+    </script>
+</body>
+</html>

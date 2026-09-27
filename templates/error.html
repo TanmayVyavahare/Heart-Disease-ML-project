@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HeartGuard - Error</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header animate-in" id="error-header">
+            <span class="header__icon" role="img" aria-label="heart">&#10084;&#65039;</span>
+            <h1 class="header__title">HeartGuard</h1>
+            <p class="header__subtitle">Something went wrong</p>
+        </header>
+
+        <!-- Error Card -->
+        <div class="card error-card animate-in-delay" id="error-card">
+            <div class="error__icon">&#128679;</div>
+            <h2 class="error__title">Prediction Error</h2>
+            <p class="error__message" id="error-message">{{ error }}</p>
+            <a href="/" class="btn btn--primary" id="retry-btn" style="max-width: 300px; margin: 0 auto;">
+                &#8592; Try Again
+            </a>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>HeartGuard &mdash; End-to-End ML Pipeline for Cardiovascular Risk Prediction</p>
+        </footer>
+    </div>
+</body>
+</html>
